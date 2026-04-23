@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-    setRoles((data ?? []).map(r => r.role as UserRole))
+    setRoles(((data ?? []) as Array<{ role: string }>).map(r => r.role as UserRole))
     setLoading(false)
   }
 
