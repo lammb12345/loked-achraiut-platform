@@ -21,6 +21,7 @@ import MediaCoachesThankYou from './pages/public/MediaCoachesThankYou'
 // Auth + Member
 import Auth from './pages/Auth'
 import MemberDashboard from './pages/member/MemberDashboard'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import NotFound from './pages/NotFound'
 
 const queryClient = new QueryClient()
@@ -52,6 +53,11 @@ export default function App() {
             {/* Member */}
             <Route path="/member" element={
               <ProtectedRoute><MemberDashboard /></ProtectedRoute>
+            } />
+
+            {/* Admin */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>
             } />
 
             {/* Catch-all */}
