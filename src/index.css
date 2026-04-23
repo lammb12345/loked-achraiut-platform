@@ -3,49 +3,101 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: 'Antidott';
+    src: url('/fonts/osantidott-extralight-web.woff2') format('woff2'),
+         url('/fonts/osantidott-extralight-web.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Antidott';
+    src: url('/fonts/osantidott-light-web.woff2') format('woff2'),
+         url('/fonts/osantidott-light-web.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Antidott';
+    src: url('/fonts/osantidott-regular-web.woff2') format('woff2'),
+         url('/fonts/osantidott-regular-web.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Antidott';
+    src: url('/fonts/osantidott-semibold-web.woff2') format('woff2'),
+         url('/fonts/osantidott-semibold-web.woff') format('woff');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Antidott';
+    src: url('/fonts/osantidott-bold-web.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 215 25% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 25% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 215 25% 15%;
+    --primary: 215 30% 18%;
+    --primary-dark: 215 35% 12%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 20% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 210 15% 92%;
+    --accent-foreground: 215 25% 15%;
+    --bright: 45 100% 51%;
+    --bright-foreground: 215 30% 18%;
+    --dark: 0 0% 5%;
+    --dark-foreground: 0 0% 100%;
+    --muted: 210 15% 96%;
+    --muted-foreground: 215 15% 45%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 45 100% 51%;
+    --radius: 1rem;
+    --gradient-primary: linear-gradient(135deg, hsl(215 30% 18%), hsl(215 35% 25%));
+    --gradient-bright: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 58%));
+    --gradient-accent: linear-gradient(180deg, hsl(210 15% 92%), hsl(210 15% 96%));
+    --shadow-premium: 0 20px 60px -15px hsl(215 30% 18% / 0.25);
+    --shadow-soft: 0 10px 30px -10px hsl(215 20% 30% / 0.15);
+    --shadow-glow: 0 0 40px hsl(45 100% 51% / 0.3);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --background: 0 0% 5%;
+    --foreground: 210 15% 92%;
+    --card: 215 25% 10%;
+    --card-foreground: 210 15% 92%;
+    --popover: 215 25% 10%;
+    --popover-foreground: 210 15% 92%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 215 30% 18%;
+    --secondary: 35 20% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 215 20% 15%;
+    --muted-foreground: 210 15% 70%;
+    --accent: 210 15% 25%;
+    --accent-foreground: 210 15% 92%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 215 20% 20%;
+    --input: 215 20% 20%;
+    --ring: 45 100% 51%;
   }
 
   * {
@@ -54,5 +106,79 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Antidott', 'Rubik', 'Assistant', -apple-system, sans-serif;
+    direction: rtl;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-bright { background: var(--gradient-bright); }
+  .gradient-accent { background: var(--gradient-accent); }
+  .shadow-premium { box-shadow: var(--shadow-premium); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .transition-smooth { transition: var(--transition-smooth); }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .article-card {
+    @apply relative bg-white rounded-3xl overflow-hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .article-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px -15px hsl(215 30% 18% / 0.25), 0 0 40px hsl(45 100% 51% / 0.15);
+  }
+
+  .article-card-image-overlay {
+    @apply absolute inset-0 pointer-events-none;
+    background: linear-gradient(to top, hsl(215 30% 18% / 0.4) 0%, transparent 50%);
+  }
+
+  .article-card-badge {
+    @apply bg-bright text-primary px-4 py-2 rounded-full text-sm font-bold;
+    box-shadow: 0 4px 15px hsl(45 100% 51% / 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .article-card-title {
+    @apply text-2xl font-bold text-primary leading-tight;
+    transition: all 0.3s ease;
+  }
+
+  .article-card-cta {
+    @apply inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-full font-bold;
+    transition: all 0.3s ease;
+  }
+
+  .article-card:hover .article-card-cta {
+    @apply bg-secondary text-white;
+    box-shadow: 0 4px 15px hsl(35 20% 55% / 0.3);
+  }
+
+  .article-card-cta-arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .article-card:hover .article-card-cta-arrow {
+    transform: translateX(-4px);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

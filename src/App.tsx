@@ -1,8 +1,24 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from '@/hooks/useAuth'
 import ProtectedRoute from '@/components/ProtectedRoute'
+
+// Public pages
+import Home from './pages/public/Home'
+import About from './pages/public/About'
+import MokedOr from './pages/public/MokedOr'
+import Institutions from './pages/public/Institutions'
+import Activism from './pages/public/Activism'
+import Contact from './pages/public/Contact'
+import Terms from './pages/public/Terms'
+import Privacy from './pages/public/Privacy'
+import News from './pages/public/News'
+import Article from './pages/public/Article'
+import MediaCoaches from './pages/public/MediaCoaches'
+import MediaCoachesThankYou from './pages/public/MediaCoachesThankYou'
+
+// Auth + Member
 import Auth from './pages/Auth'
 import MemberDashboard from './pages/member/MemberDashboard'
 import NotFound from './pages/NotFound'
@@ -16,11 +32,29 @@ export default function App() {
         <Toaster position="top-center" />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/auth" replace />} />
+            {/* Public */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/moked-or" element={<MokedOr />} />
+            <Route path="/institutions" element={<Institutions />} />
+            <Route path="/activism" element={<Activism />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/article/:id" element={<Article />} />
+            <Route path="/meamnim" element={<MediaCoaches />} />
+            <Route path="/meamnim/thank-you" element={<MediaCoachesThankYou />} />
+
+            {/* Auth */}
             <Route path="/auth" element={<Auth />} />
+
+            {/* Member */}
             <Route path="/member" element={
               <ProtectedRoute><MemberDashboard /></ProtectedRoute>
             } />
+
+            {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
