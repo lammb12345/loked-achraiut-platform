@@ -23,6 +23,7 @@ import Auth from './pages/Auth'
 import MemberDashboard from './pages/member/MemberDashboard'
 import MemberCourses from './pages/member/MemberCourses'
 import MemberClub from './pages/member/MemberClub'
+import MemberCourseCurriculum from './pages/member/MemberCourseCurriculum'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import NotFound from './pages/NotFound'
 
@@ -61,6 +62,11 @@ export default function App() {
             } />
             <Route path="/member/club" element={
               <ProtectedRoute requiredRole="club_member"><MemberClub /></ProtectedRoute>
+            } />
+
+            {/* Member curriculum */}
+            <Route path="/member/course/:courseId" element={
+              <ProtectedRoute><MemberCourseCurriculum /></ProtectedRoute>
             } />
 
             {/* Admin */}
