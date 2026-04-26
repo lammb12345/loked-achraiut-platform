@@ -17,7 +17,7 @@ export default function MemberDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {hasRole('club_member') && (
+          {(hasRole('club_member') || hasRole('admin')) && (
             <Card className="cursor-pointer hover:shadow-md transition-shadow">
               <CardHeader><CardTitle>מועדון הורים</CardTitle></CardHeader>
               <CardContent>
@@ -28,7 +28,7 @@ export default function MemberDashboard() {
             </Card>
           )}
 
-          {hasRole('course_member') && (
+          {(hasRole('course_member') || hasRole('admin')) && (
             <Card className="cursor-pointer hover:shadow-md transition-shadow">
               <CardHeader><CardTitle>הקורסים שלי</CardTitle></CardHeader>
               <CardContent>
