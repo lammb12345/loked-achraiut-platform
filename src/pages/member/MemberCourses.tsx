@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/integrations/supabase/client'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { BookOpen, ExternalLink, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { BookOpen, ExternalLink, AlertCircle, CheckCircle2, PlayCircle } from 'lucide-react'
 import MemberLayout from '@/components/member/MemberLayout'
 
 interface CourseProgress {
@@ -107,12 +107,22 @@ export default function MemberCourses() {
     <MemberLayout>
       <div className="p-6" dir="rtl">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl font-bold text-primary mb-6">הקורסים שלי</h1>
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-primary">הקורסים שלי</h1>
+            <p className="text-muted-foreground mt-1 text-sm">כל הקורסים שרשומים עבורך</p>
+          </div>
 
           {loading && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-white border border-border rounded-2xl p-6 animate-pulse h-48" />
+                <div key={i} className="bg-white border border-border rounded-2xl overflow-hidden animate-pulse">
+                  <div className="h-36 bg-gray-200" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    <div className="h-2 bg-gray-100 rounded w-full" />
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -133,74 +143,96 @@ export default function MemberCourses() {
           )}
 
           {!loading && !error && enrollments.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {enrollments.map((enr) => {
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {enrollments.map((enr, idx) => {
                 const course = enr.courses
                 if (!course) return null
                 const prog = progressMap[enr.course_id]
                 const pct = prog && prog.total > 0
                   ? Math.round((prog.completed / prog.total) * 100)
                   : 0
+                const isComplete = pct === 100 && prog?.total > 0
 
                 return (
                   <div
                     key={enr.id}
-                    className="bg-white border border-border rounded-2xl p-5 flex flex-col gap-4 hover:shadow-md transition-all"
+                    className="group bg-white border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                    style={{ animationDelay: `${idx * 80}ms` }}
                   >
-                    {course.image_url && (
-                      <img
-                        src={course.image_url}
-                        alt={course.title}
-                        className="w-full h-32 object-cover rounded-xl"
-                      />
-                    )}
-
-                    <div>
-                      <h3 className="font-bold text-primary text-lg leading-snug">{course.title}</h3>
-                      {course.teacher_name && (
-                        <p className="text-sm text-muted-foreground mt-0.5">{course.teacher_name}</p>
+                    <div className="relative h-36 bg-gradient-to-br from-primary/20 to-secondary/10 flex items-center justify-center overflow-hidden">
+                      {course.image_url ? (
+                        <img
+                          src={course.image_url}
+                          alt={course.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <BookOpen className="w-12 h-12 text-primary/40" />
+                      )}
+                      {isComplete && (
+                        <div className="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                          <CheckCircle2 className="w-3 h-3" />
+                          הושלם
+                        </div>
                       )}
                     </div>
 
-                    {prog && prog.total > 0 && (
+                    <div className="p-5 flex flex-col gap-3 flex-1">
                       <div>
-                        <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-                          <span>{prog.completed} / {prog.total} שיעורים</span>
-                          <span>{pct}%</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
-                            style={{ width: `${Math.min(pct, 100)}%` }}
-                          />
-                        </div>
-                        {pct === 100 && (
-                          <div className="flex items-center gap-1 mt-2 text-xs text-green-600">
-                            <CheckCircle2 className="w-3 h-3" />
-                            הושלם
-                          </div>
+                        <h3 className="font-bold text-primary text-lg leading-snug group-hover:text-secondary transition-colors line-clamp-2">
+                          {course.title}
+                        </h3>
+                        {course.teacher_name && (
+                          <p className="text-sm text-muted-foreground mt-0.5">{course.teacher_name}</p>
                         )}
                       </div>
-                    )}
 
-                    <div className="flex flex-col gap-2 mt-auto">
-                      <Link
-                        to={`/member/course/${course.id}`}
-                        className={cn(buttonVariants({ size: 'sm' }), 'w-full justify-center')}
-                      >
-                        כניסה לקורס
-                      </Link>
-                      {enr.unique_link && (
-                        <a
-                          href={enr.unique_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'w-full justify-center gap-1.5')}
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          כניסה ישירה
-                        </a>
+                      {prog && prog.total > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>{prog.completed} / {prog.total} שיעורים</span>
+                            <span className="font-medium">{pct}%</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={cn(
+                                'h-full rounded-full transition-all duration-500',
+                                isComplete
+                                  ? 'bg-green-500'
+                                  : 'bg-gradient-to-r from-primary to-secondary'
+                              )}
+                              style={{ width: `${Math.min(pct, 100)}%` }}
+                            />
+                          </div>
+                        </div>
                       )}
+
+                      <div className="flex flex-col gap-2 mt-auto pt-1">
+                        <Link
+                          to={`/member/course/${course.id}`}
+                          className={cn(
+                            buttonVariants({ size: 'sm' }),
+                            'w-full justify-center gap-2'
+                          )}
+                        >
+                          <PlayCircle className="w-4 h-4" />
+                          {pct > 0 ? 'המשך לקורס' : 'כניסה לקורס'}
+                        </Link>
+                        {enr.unique_link && (
+                          <a
+                            href={enr.unique_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                              buttonVariants({ variant: 'outline', size: 'sm' }),
+                              'w-full justify-center gap-1.5'
+                            )}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            כניסה ישירה
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )
