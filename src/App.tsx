@@ -33,7 +33,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Toaster position="top-center" />
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.VITE_BASE?.replace(/\/$/, '') || ''}>
           <Routes>
             {/* Public */}
             <Route path="/" element={<Home />} />
