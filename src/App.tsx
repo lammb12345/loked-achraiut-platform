@@ -21,6 +21,8 @@ import MediaCoachesThankYou from './pages/public/MediaCoachesThankYou'
 // Auth + Member
 import Auth from './pages/Auth'
 import MemberDashboard from './pages/member/MemberDashboard'
+import MemberCourses from './pages/member/MemberCourses'
+import MemberClub from './pages/member/MemberClub'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import NotFound from './pages/NotFound'
 
@@ -53,6 +55,12 @@ export default function App() {
             {/* Member */}
             <Route path="/member" element={
               <ProtectedRoute><MemberDashboard /></ProtectedRoute>
+            } />
+            <Route path="/member/courses" element={
+              <ProtectedRoute requiredRole="course_member"><MemberCourses /></ProtectedRoute>
+            } />
+            <Route path="/member/club" element={
+              <ProtectedRoute requiredRole="club_member"><MemberClub /></ProtectedRoute>
             } />
 
             {/* Admin */}

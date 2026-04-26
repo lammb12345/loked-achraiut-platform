@@ -3,6 +3,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Link } from 'react-router-dom'
+import { supabase } from '@/integrations/supabase/client'
+import { toast } from 'sonner'
+import AdminSync from './AdminSync'
 import {
   fetchCourses,
   fetchCourseStudents,
@@ -30,6 +33,13 @@ import {
   ExternalLink,
   Home,
   LogOut,
+  Newspaper,
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  EyeOff,
+  Database,
 } from 'lucide-react'
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -471,7 +481,238 @@ function StudentSearch() {
 
 // ── Main AdminDashboard ────────────────────────────────────────────────────
 
-type View = 'courses' | 'search'
+// ── News Manager ───────────────────────────────────────────────────────────
+
+interface Article {
+  id: string
+  title: string
+  content: string
+  excerpt: string
+  image_url: string
+  category: string
+  published: boolean
+  published_date: string | null
+  created_at: string
+}
+
+type ArticleForm = Omit<Article, 'id' | 'created_at'>
+
+const EMPTY_FORM: ArticleForm = {
+  title: '',
+  content: '',
+  excerpt: '',
+  image_url: '',
+  category: 'חדשות',
+  published: false,
+  published_date: null,
+}
+
+function NewsManager() {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState<Article | null>(null)
+  const [creating, setCreating] = useState(false)
+  const [form, setForm] = useState<ArticleForm>(EMPTY_FORM)
+  const [saving, setSaving] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = supabase as any
+
+  async function load() {
+    setLoading(true)
+    const { data } = await db.from('articles').select('*').order('created_at', { ascending: false })
+    setArticles((data as Article[]) ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  function startCreate() {
+    setForm(EMPTY_FORM)
+    setEditing(null)
+    setCreating(true)
+  }
+
+  function startEdit(a: Article) {
+    setForm({
+      title: a.title,
+      content: a.content,
+      excerpt: a.excerpt,
+      image_url: a.image_url ?? '',
+      category: a.category ?? 'חדשות',
+      published: a.published,
+      published_date: a.published_date,
+    })
+    setEditing(a)
+    setCreating(false)
+  }
+
+  function cancel() { setCreating(false); setEditing(null) }
+
+  async function save() {
+    if (!form.title.trim() || !form.content.trim()) {
+      toast.error('כותרת ותוכן הם שדות חובה')
+      return
+    }
+    setSaving(true)
+    const payload = {
+      ...form,
+      published_date: form.published ? (form.published_date || new Date().toISOString()) : null,
+    }
+    if (editing) {
+      const { error } = await db.from('articles').update(payload).eq('id', editing.id)
+      if (error) { toast.error('שגיאה בשמירה'); setSaving(false); return }
+      toast.success('המאמר עודכן')
+    } else {
+      const { error } = await db.from('articles').insert(payload)
+      if (error) { toast.error('שגיאה בשמירה'); setSaving(false); return }
+      toast.success('המאמר נוצר')
+    }
+    setSaving(false)
+    cancel()
+    load()
+  }
+
+  async function togglePublish(a: Article) {
+    const published = !a.published
+    await db.from('articles').update({
+      published,
+      published_date: published ? new Date().toISOString() : null,
+    }).eq('id', a.id)
+    load()
+  }
+
+  async function remove(a: Article) {
+    if (!confirm(`למחוק את "${a.title}"?`)) return
+    await db.from('articles').delete().eq('id', a.id)
+    toast.success('נמחק')
+    load()
+  }
+
+  if (creating || editing) {
+    return (
+      <div>
+        <div className="flex items-center gap-3 mb-6">
+          <button onClick={cancel} className="text-muted-foreground hover:text-primary transition-colors">
+            <ArrowRight className="w-5 h-5" />
+          </button>
+          <h2 className="text-xl font-bold text-primary">{editing ? 'עריכת מאמר' : 'מאמר חדש'}</h2>
+        </div>
+
+        <div className="bg-white border border-border rounded-2xl p-6 space-y-4 max-w-2xl">
+          <div>
+            <label className="text-sm font-medium text-primary block mb-1">כותרת *</label>
+            <Input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="כותרת המאמר" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary block mb-1">תקציר</label>
+            <Input value={form.excerpt} onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} placeholder="משפט קצר שיופיע ברשימת החדשות" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary block mb-1">קטגוריה</label>
+            <Input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} placeholder="חדשות" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary block mb-1">URL תמונה</label>
+            <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." dir="ltr" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary block mb-1">תוכן *</label>
+            <textarea
+              value={form.content}
+              onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+              placeholder="תוכן המאמר..."
+              rows={12}
+              className="w-full border border-input rounded-lg p-3 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="published"
+              checked={form.published}
+              onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
+              className="rounded"
+            />
+            <label htmlFor="published" className="text-sm font-medium text-primary cursor-pointer">פרסם מיידית</label>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Button onClick={save} disabled={saving}>{saving ? 'שומר...' : 'שמור'}</Button>
+            <Button variant="outline" onClick={cancel}>ביטול</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-primary">ניהול חדשות</h2>
+        <Button onClick={startCreate} className="gap-2">
+          <Plus className="w-4 h-4" />
+          מאמר חדש
+        </Button>
+      </div>
+
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => <div key={i} className="bg-white border border-border rounded-2xl p-5 animate-pulse h-20" />)}
+        </div>
+      )}
+
+      {!loading && articles.length === 0 && (
+        <div className="bg-white border border-border rounded-2xl p-10 text-center text-muted-foreground">
+          <Newspaper className="w-10 h-10 mx-auto mb-3 opacity-40" />
+          <p>אין מאמרים עדיין</p>
+        </div>
+      )}
+
+      {!loading && articles.length > 0 && (
+        <div className="space-y-3">
+          {articles.map(a => (
+            <div key={a.id} className="bg-white border border-border rounded-2xl p-5 flex items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${a.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    {a.published ? 'פורסם' : 'טיוטה'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{a.category}</span>
+                </div>
+                <h3 className="font-semibold text-primary truncate">{a.title}</h3>
+                {a.excerpt && <p className="text-xs text-muted-foreground mt-0.5 truncate">{a.excerpt}</p>}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => togglePublish(a)}
+                  className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-primary"
+                  title={a.published ? 'הסר פרסום' : 'פרסם'}
+                >
+                  {a.published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={() => startEdit(a)}
+                  className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-primary"
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => remove(a)}
+                  className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-600"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────
+
+type View = 'courses' | 'search' | 'news' | 'sync'
 
 export default function AdminDashboard() {
   const { signOut } = useAuth()
@@ -522,6 +763,28 @@ export default function AdminDashboard() {
           >
             <Search className="w-4 h-4 shrink-0" />
             חיפוש תלמיד
+          </button>
+          <button
+            onClick={() => { setView('news'); setSelectedCourse(null) }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-right ${
+              view === 'news'
+                ? 'bg-primary-foreground/15 text-primary-foreground'
+                : 'text-primary-foreground/60 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+            }`}
+          >
+            <Newspaper className="w-4 h-4 shrink-0" />
+            חדשות
+          </button>
+          <button
+            onClick={() => { setView('sync'); setSelectedCourse(null) }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-right ${
+              view === 'sync'
+                ? 'bg-primary-foreground/15 text-primary-foreground'
+                : 'text-primary-foreground/60 hover:bg-primary-foreground/10 hover:text-primary-foreground'
+            }`}
+          >
+            <Database className="w-4 h-4 shrink-0" />
+            סנכרון Schooler
           </button>
         </nav>
 
@@ -596,6 +859,10 @@ export default function AdminDashboard() {
         )}
 
         {view === 'search' && <StudentSearch />}
+
+        {view === 'news' && <NewsManager />}
+
+        {view === 'sync' && <AdminSync />}
       </div>
     </div>
   )
